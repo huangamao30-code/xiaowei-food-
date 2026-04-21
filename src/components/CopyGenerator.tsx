@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, Bell, Send, Music2, BookOpen, Circle, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { GoogleGenAI } from '@google/genai';
 import { PREGENERATED_COPY } from '../constants/pregenerated';
 import { APP_AVATAR, APP_NAME } from '../constants/app';
 
@@ -60,26 +59,46 @@ export default function CopyGenerator({ initialTopic, clearInitialTopic }: CopyG
     }
     
     try {
-      // Using gemini-3-flash-preview model for high speed and reasoning
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
       const currentPlatform = platforms.find(p => p.id === platform)?.name;
       const currentTone = tones.find(t => t.id === tone)?.name;
-      
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: `你是一个专业的餐饮文案专家。请根据以下信息为${currentPlatform}生成一段吸引人的文案。
-        
-        产品信息: ${productInfo}
-        核心卖点: ${sellingPoints}
-        文案语气: ${currentTone}
-        
-        请直接输出生成的文案内容，不要包含其他解释。如果是小红书，请带上相关的emoji和话题标签。`,
+
+      const apiKey = import.meta.env.VITE_KIMI_API_KEY;
+      console.log('API Key loaded:', apiKey ? `${apiKey.slice(0, 8)}...` : 'MISSING');
+
+      const response = await fetch('https://api.moonshot.cn/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'moonshot-v1-8k',
+          messages: [
+            {
+              role: 'user',
+              content: `你是一个专业的餐饮文案专家。请根据以下信息为${currentPlatform}生成一段吸引人的文案。
+
+产品信息: ${productInfo}
+核心卖点: ${sellingPoints}
+文案语气: ${currentTone}
+
+请直接输出生成的文案内容，不要包含其他解释。如果是小红书，请带上相关的emoji和话题标签。`,
+            },
+          ],
+          temperature: 0.7,
+        }),
       });
-      
-      setGeneratedResult(response.text || '生成失败，请重试。');
+
+      const data = await response.json();
+      console.log('Kimi response:', data);
+      if (!response.ok) {
+        setGeneratedResult(`请求失败 ${response.status}: ${JSON.stringify(data)}`);
+        return;
+      }
+      setGeneratedResult(data.choices?.[0]?.message?.content || '生成失败，请重试。');
     } catch (error) {
       console.error(error);
-      setGeneratedResult('AI 引擎出了点小状况，请稍后再试。');
+      setGeneratedResult(`错误: ${String(error)}`);
     } finally {
       setIsGenerating(false);
     }
