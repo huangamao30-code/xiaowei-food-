@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", "Inter", "Noto Sans SC", ui-sans-serif, system-ui, sans-serif;
+
+  --color-primary: #45D09E;
+  --color-primary-container: #C8F2E3;
+  --color-on-primary-container: #003827;
+
+  --color-secondary: #70CFFF;
+  --color-secondary-container: #D1EFFF;
+  --color-on-secondary-container: #001F29;
+
+  --color-tertiary: #FF9E9E;
+  --color-tertiary-container: #FFDAD9;
+  --color-on-tertiary-container: #410002;
+
+  --color-surface-container-lowest: #FFFFFF;
+  --color-surface-container-low: #F2F4F7;
+  --color-surface-container: #E1E4E8;
+  --color-surface-container-high: #D2D6DC;
+  
+  --color-on-surface: #191C1E;
+  --color-on-surface-variant: #40484C;
+  --color-outline: #70787D;
+  --color-outline-variant: #C0C8CC;
+
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+  --radius-4xl: 2rem;
+}
+
+@utility no-scrollbar {
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+body {
+  @apply bg-surface-container-low text-on-surface antialiased selection:bg-primary/20;
+  -webkit-tap-highlight-color: transparent;
+}
